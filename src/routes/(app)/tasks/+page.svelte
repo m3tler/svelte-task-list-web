@@ -9,11 +9,14 @@
     } from '@smui/data-table';
     import Select, { Option } from '@smui/select';
     import IconButton from '@smui/icon-button';
-    import { Label } from '@smui/common';
+    import { Icon, Label } from '@smui/common';
     import Checkbox from '@smui/checkbox';
     import Tab from '@smui/tab';
     import TabBar from '@smui/tab-bar';
     import { format } from 'date-fns';
+    import Button from '@smui/button';
+    import Textfield from '@smui/textfield';
+    import FormField from '@smui/form-field';
   
     type Task = {
       id: number;
@@ -28,11 +31,15 @@
     let currentPage = 0;
     let lastPage = data.totalPages - 1;
     let selected: any[] = [];
+    let selected2: any[] = [];
     let sort: keyof Task = 'id';
     let sortDirection: Lowercase<keyof typeof SortValue> = 'ascending';
     let active = 'Wszystkie';
+    let searchName = "";
+    let searchDone = true;
+    let searchTodo = true;
   
-    $: currentPage, rowsPerPage, sort, active, getTasks();
+    $: currentPage, rowsPerPage, sort, active, searchName, getTasks();
   
     $: if (currentPage + 1 > lastPage) {
       currentPage = lastPage;
@@ -48,8 +55,9 @@
         const searchParams = [];
         searchParams.push(["page", currentPage.toString()]);
         searchParams.push(["size", rowsPerPage.toString()]);
-        searchParams.push(["sortBy", "id"]);
+        searchParams.push(["sortBy", sort]);
         searchParams.push(["sortOrder", sortDirection === 'ascending' ? 'asc' : 'desc']);
+        searchParams.push(["name", searchName.toLocaleLowerCase()]);
 
         if (active === 'Wykonane') {
             searchParams.push(["done", "true"]);
@@ -63,6 +71,12 @@
         if (active === 'Przeterminowane') {
             searchParams.push(["done", "false"]);
             searchParams.push(["to", format(new Date(), "yyyy-MM-dd'T'HH:mm:ss")]);
+        }
+
+        if (searchDone == true && searchTodo == false) {
+          searchParams.push(["done", "true"]);
+        } else if (searchDone == true && searchTodo == false) {
+          searchParams.push(["done", "false"]);
         }
         
         const params = new URLSearchParams(searchParams).toString();
@@ -85,16 +99,72 @@
     }
 
     function isTerminate(date: Date) {
-    return new Date(date).getTime() < Date.now();
+      return new Date(date).getTime() < Date.now();
     }
+
+    function changeDone() {
+      if (searchDone == false) {
+        searchTodo = true;
+      }
+    }
+
+    function changeTodo() {
+      if (searchTodo == false) {
+        searchDone = true;
+      }
+    }
+
+    let valueA = "";
 </script>
 
 
-<TabBar tabs={['Wszystkie', 'Wykonane', 'Oczekujące', 'Przeterminowane']} let:tab bind:active>
+
+<div style="margin-bottom: 16px;">
+  <TabBar tabs={['Wszystkie', 'Wykonane', 'Oczekujące', 'Przeterminowane']} let:tab bind:active>
     <Tab {tab}>
       <Label>{tab}</Label>
     </Tab>
-</TabBar>
+  </TabBar>
+</div>
+
+<div style="margin-bottom: 16px;">
+  <Button variant=raised>Dodaj</Button>
+  <Button variant=raised>Usuń</Button>
+</div>
+
+<div style="margin-bottom: 8px; vertical-align: middle;">
+  <Textfield
+    type=search
+    class="shaped-outlined"
+    variant="outlined"
+    bind:value={searchName}
+    label="Nazwa"
+    style="min-width: 300px; margin-right: 8px;"
+  />
+  <FormField>
+    <Checkbox bind:checked={searchDone} on:change={changeDone} />
+    <span slot="label">Wykonane</span>
+  </FormField>
+  <FormField style="margin-right: 8px;">
+    <Checkbox bind:checked={searchTodo} on:change={changeTodo} />
+    <span slot="label">Do zrobienia</span>
+  </FormField>
+  <Textfield
+    type=date
+    class="shaped-outlined"
+    variant="outlined"
+    bind:value={valueA}
+    label="Od"
+  />
+  <Textfield
+    type=date
+    class="shaped-outlined"
+    variant="outlined"
+    bind:value={valueA}
+    label="Do"
+  />
+</div>
+
 <DataTable
 sortable
 bind:sort
@@ -105,17 +175,18 @@ style="width: 100%;"
 >
     <Head>
       <Row>
-        <Cell checkbox sortable={false}>
-            <Checkbox />
+        <Cell checkbox sortable={false}></Cell>
+        <Cell columnId="name" style="width: 100%;">
+          <Label>Nazwa</Label>
+          <IconButton class="material-icons">arrow_upward</IconButton>
         </Cell>
-        <Cell style="width: 100%;">Nazwa
-            <IconButton class="material-icons">arrow_upward</IconButton>
+        <Cell columnId="isDone" checkbox>
+          <Label>Wykonane</Label>
+          <IconButton class="material-icons">arrow_upward</IconButton>
         </Cell>
-        <Cell checkbox>Wykonane
-            <IconButton class="material-icons">arrow_upward</IconButton>
-        </Cell>
-        <Cell>Termin
-            <IconButton class="material-icons">arrow_upward</IconButton>
+        <Cell columnId="deadline">
+          <Label>Termin</Label>
+          <IconButton class="material-icons">arrow_upward</IconButton>
         </Cell>
       </Row>
     </Head>
@@ -128,8 +199,11 @@ style="width: 100%;"
               value={item}
               valueKey={item.name}
             />
+            <Button color="secondary" variant="outlined">Edytuj</Button>
           </Cell>
-          <Cell>{item.name}</Cell>
+          <Cell style="color: { item.done == true ? 'lightgreen' : isTerminate(item.deadline) ? 'lightcoral' : 'black' };" >
+            {item.name}
+          </Cell>
           <Cell>
             <Checkbox
             checked={item.done}
