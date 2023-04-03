@@ -17,8 +17,13 @@
 		"@material/typography": "^14.0.0",
 		"@smui/banner": "^7.0.0-beta.0",
 		"@smui/button": "^7.0.0-beta.0",
+		"@smui/checkbox": "^7.0.0-beta.0",
+		"@smui/common": "^7.0.0-beta.0",
+		"@smui/data-table": "^7.0.0-beta.0",
 		"@smui/menu-surface": "^7.0.0-beta.0",
 		"@smui/paper": "^7.0.0-beta.0",
+		"@smui/tab": "^7.0.0-beta.0",
+		"@smui/tab-bar": "^7.0.0-beta.0",
 		"@smui/textfield": "^7.0.0-beta.0",
 		"@smui/top-app-bar": "^7.0.0-beta.0",
 		"@sveltejs/adapter-auto": "^2.0.0",
@@ -41,6 +46,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"date-fns": "^2.29.3",
 		"svelte-feather-icons": "^4.0.0",
 		"svelte-material-ui": "^7.0.0-beta.0"
 	}

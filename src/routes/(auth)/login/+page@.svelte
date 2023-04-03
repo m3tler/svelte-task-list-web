@@ -5,28 +5,36 @@
 	import { goto } from "$app/navigation";
   import Button, { Label } from '@smui/button';
   import MenuSurface from '@smui/menu-surface';
-  import Paper, { Title, Content } from '@smui/paper';
+  import Paper, { Content } from '@smui/paper';
 
     let username = "";
     let password = "";
     let errorMessage = "";
   
     async function login() {
-      const response = await fetch("http://localhost:8080/auth", {
+      const options = {
         headers: {
           Authorization: "Basic " + btoa(username + ":" + password)
         }
-      });
-  
-      if (response.ok) {
-        goto("tasks");
-      } else {
-        errorMessage = "Invalid username or password";
       }
+      await fetch("http://localhost:8080/auth", options).then((response) => {
+        if (response.ok) {
+          goto("tasks");
+        } else if (response.status == 401) {
+          errorMessage = 'Invalid username or password';
+        } else {
+          throw new Error();
+        }
+        
+      })
+      .catch((error) => {
+        errorMessage = 'Something went wrong';
+        console.log(error);
+      });
     }
 </script>
 
-<div style="display: flex; justify-content: center;">
+<div style="display: flex; justify-content: center; padding: 25px;">
   <MenuSurface static style="max-width: 350px;">
     <div class="columns margins" style="padding: 25px;">
       <form on:submit|preventDefault={login}>
@@ -62,7 +70,7 @@
         </div>
       </form>
       {#if errorMessage}
-      <Paper color="error" variant="outlined" style="margin-top: 25px;">
+      <Paper color="error" variant="outlined" style="margin-top: 25px; padding: 5px;">
         <Content>
           <CommonIcon class="material-icons" style="font-size: 1.2em; line-height: normal; vertical-align: middle;">error</CommonIcon>
            {errorMessage}
