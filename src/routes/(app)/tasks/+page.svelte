@@ -9,7 +9,7 @@
     } from '@smui/data-table';
     import Select, { Option } from '@smui/select';
     import IconButton from '@smui/icon-button';
-    import { Icon, Label } from '@smui/common';
+    import { Label } from '@smui/common';
     import Checkbox from '@smui/checkbox';
     import Tab from '@smui/tab';
     import TabBar from '@smui/tab-bar';
@@ -17,6 +17,7 @@
     import Button from '@smui/button';
     import Textfield from '@smui/textfield';
     import FormField from '@smui/form-field';
+    import { getTasks } from './service';
   
     type Task = {
       id: number;
@@ -31,90 +32,98 @@
     let currentPage = 0;
     let lastPage = data.totalPages - 1;
     let selected: any[] = [];
-    let selected2: any[] = [];
     let sort: keyof Task = 'id';
     let sortDirection: Lowercase<keyof typeof SortValue> = 'ascending';
     let active = 'Wszystkie';
     let searchName = "";
     let searchDone = true;
     let searchTodo = true;
+    let searchFrom = "";
+    let searchTo = "";
   
-    $: currentPage, rowsPerPage, sort, active, searchName, getTasks();
-  
+    $: currentPage, rowsPerPage, sort, active, searchName, searchDone, searchTodo;
+
     $: if (currentPage + 1 > lastPage) {
       currentPage = lastPage;
     }
 
-    async function getTasks() {
-        const options = {
-            headers: {
-                Authorization: "Basic " + btoa("admin@admin.pl" + ":" + "admin")
-            }
-        }
+    let searchParams = new Map<string, string>();
+    $: {
+      searchParams.clear();
+      searchParams.set('page', currentPage.toString());
+      searchParams.set('size', rowsPerPage.toString());
+      searchParams.set('sortBy', sort);
+      searchParams.set('sortOrder', sortDirection === 'ascending' ? 'asc' : 'desc');
+      searchParams.set('name', searchName.toLowerCase());
 
-        const searchParams = [];
-        searchParams.push(["page", currentPage.toString()]);
-        searchParams.push(["size", rowsPerPage.toString()]);
-        searchParams.push(["sortBy", sort]);
-        searchParams.push(["sortOrder", sortDirection === 'ascending' ? 'asc' : 'desc']);
-        searchParams.push(["name", searchName.toLocaleLowerCase()]);
+      if (active === 'Wykonane') {
+        searchDone = true;
+        searchTodo = true;
+        searchParams.set('done', 'true');
+      }
 
-        if (active === 'Wykonane') {
-            searchParams.push(["done", "true"]);
-        }
+      if (active === 'Oczekujące') {
+        searchParams.set('done', 'false');
+        searchParams.set('from', format(new Date(), "yyyy-MM-dd'T'HH:mm:ss"));
+      }
 
-        if (active === 'Oczekujące') {
-            searchParams.push(["done", "false"]);
-            searchParams.push(["from", format(new Date(), "yyyy-MM-dd'T'HH:mm:ss")]);
-        }
+      if (active === 'Przeterminowane') {
+        searchParams.set('done', 'false');
+        searchParams.set('to', format(new Date(), "yyyy-MM-dd'T'HH:mm:ss"));
+      }
 
-        if (active === 'Przeterminowane') {
-            searchParams.push(["done", "false"]);
-            searchParams.push(["to", format(new Date(), "yyyy-MM-dd'T'HH:mm:ss")]);
-        }
+      if (searchDone == true && searchTodo == false) {
+        searchParams.set('done', 'true');
+      } else if (searchDone == false && searchTodo == true) {
+        searchParams.set('done', 'false');
+      }
 
-        if (searchDone == true && searchTodo == false) {
-          searchParams.push(["done", "true"]);
-        } else if (searchDone == true && searchTodo == false) {
-          searchParams.push(["done", "false"]);
-        }
-        
-        const params = new URLSearchParams(searchParams).toString();
+      if((searchFrom != '' && searchTo != '') && new Date(searchTo) < new Date(searchFrom)) {
+        searchTo = searchFrom;
+      }
 
-        await fetch('http://localhost:8080/tasks?' + params, options).then((response) => {
-        if (response.ok) {
-            return response.json();
-        }
-        throw new Error();
-        })
-        .then((data) => {
-            items = data.content;
-            currentPage = data.pageable.pageNumber;
-            rowsPerPage = data.pageable.pageSize;
-            lastPage = data.totalPages - 1;
-        })
-        .catch((error) => {
-            console.log(error);
-        });
-    }
+      if (searchFrom != '') {
+        searchParams.set('from', format(new Date(searchFrom), "yyyy-MM-dd'T'HH:mm:ss"));
+      }
+
+      if (searchTo != '') {
+        searchParams.set('to', format(new Date(searchTo), "yyyy-MM-dd'T'HH:mm:ss"));
+      }
+
+      getTasks(searchParams).then((data) => {
+        items = data.content;
+        currentPage = data.pageable.pageNumber;
+        rowsPerPage = data.pageable.pageSize;
+        lastPage = data.totalPages - 1 >= 0 ? data.totalPages - 1 : 0;
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    };
 
     function isTerminate(date: Date) {
       return new Date(date).getTime() < Date.now();
     }
 
     function changeDone() {
-      if (searchDone == false) {
+      if (searchDone == true) {
         searchTodo = true;
       }
     }
 
     function changeTodo() {
-      if (searchTodo == false) {
+      if (searchTodo == true) {
         searchDone = true;
       }
     }
 
-    let valueA = "";
+    function resetSearchFilters() {
+      searchName = '';
+      searchDone = true;
+      searchTodo = true;
+      searchFrom = '';
+      searchTo = '';
+    }
 </script>
 
 
@@ -142,34 +151,35 @@
     style="min-width: 300px; margin-right: 8px;"
   />
   <FormField>
-    <Checkbox bind:checked={searchDone} on:change={changeDone} />
+    <Checkbox bind:checked={searchDone} on:click={changeDone} disabled={ active === 'Wykonane' }/>
     <span slot="label">Wykonane</span>
   </FormField>
   <FormField style="margin-right: 8px;">
-    <Checkbox bind:checked={searchTodo} on:change={changeTodo} />
+    <Checkbox bind:checked={searchTodo} on:click={changeTodo} disabled={ active === 'Wykonane' }/>
     <span slot="label">Do zrobienia</span>
   </FormField>
-  <Textfield
+  <Textfield 
     type=date
     class="shaped-outlined"
     variant="outlined"
-    bind:value={valueA}
+    bind:value={searchFrom}
     label="Od"
   />
   <Textfield
     type=date
     class="shaped-outlined"
     variant="outlined"
-    bind:value={valueA}
+    bind:value={searchTo}
     label="Do"
   />
+  <Button on:click={resetSearchFilters}>Reset</Button>
 </div>
 
 <DataTable
 sortable
 bind:sort
 bind:sortDirection
-on:SMUIDataTable:sorted={getTasks}
+on:SMUIDataTable:sorted={() => (getTasks(searchParams))}
 table$aria-label="Todo list"
 style="width: 100%;"
 >
