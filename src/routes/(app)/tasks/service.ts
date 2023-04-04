@@ -8,24 +8,30 @@ export type Task = {
 	id: number;
 	name: string;
 	done: boolean;
-	deadline: Date;
+	deadline: string;
 };
 
 export async function getTasks(searchParams: Map<string, string>) {
 	const params = new URLSearchParams(Array.from(searchParams.entries())).toString();
-	return await fetch('http://localhost:8080/tasks?' + params, options)
-		.then((response) => {
-			if (response.ok) {
-				return response.json();
-			}
-			throw new Error();
-		})
-		.catch((error) => {
-			console.log(error);
-		});
+	return await fetch('http://localhost:8080/tasks?' + params, options);
 }
 
-export async function saveTask(task: Task) {
+export async function addTask(task: Task) {
+	return await fetch('http://localhost:8080/tasks', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			Authorization: 'Basic ' + btoa('admin@admin.pl' + ':' + 'admin')
+		},
+		body: JSON.stringify({
+			name: task.name,
+			done: task.done,
+			deadline: new Date(task.deadline)
+		})
+	});
+}
+
+export async function editTask(task: any) {
 	return await fetch('http://localhost:8080/tasks/' + task.id, {
 		method: 'PUT',
 		headers: {
@@ -33,32 +39,16 @@ export async function saveTask(task: Task) {
 			Authorization: 'Basic ' + btoa('admin@admin.pl' + ':' + 'admin')
 		},
 		body: JSON.stringify(task)
-	}).catch((error) => {
-		console.log(error);
 	});
 }
 
 export async function deleteTasks(ids: number[]) {
+	console.log(ids.join(','))
 	return await fetch('http://localhost:8080/tasks/' + ids.join(','), {
 		method: 'DELETE',
 		headers: {
 			'Content-Type': 'application/json',
 			Authorization: 'Basic ' + btoa('admin@admin.pl' + ':' + 'admin')
 		}
-	}).catch((error) => {
-		console.log(error);
-	});
-}
-
-export async function addTask(task: any) {
-	return await fetch('http://localhost:8080/tasks', {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-			Authorization: 'Basic ' + btoa('admin@admin.pl' + ':' + 'admin')
-		},
-		body: JSON.stringify(task)
-	}).catch((error) => {
-		console.log(error);
 	});
 }
