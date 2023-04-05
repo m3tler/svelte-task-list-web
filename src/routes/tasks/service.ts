@@ -43,12 +43,11 @@ export async function editTask(task: any) {
 }
 
 export async function deleteTasks(ids: number[]) {
-	console.log(ids.join(','))
+	console.log(ids.join(','));
 	return await fetch('http://localhost:8080/tasks/' + ids.join(','), {
 		method: 'DELETE',
 		headers: {
-			'Content-Type': 'application/json',
-			Authorization: 'Basic ' + btoa('admin@admin.pl' + ':' + 'admin')
+			'Content-Type': 'application/json'
 		}
 	});
 }

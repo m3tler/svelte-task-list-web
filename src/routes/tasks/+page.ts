@@ -17,7 +17,7 @@ export async function load() {
 			if (response.ok) {
 				return response.json();
 			}
-			throw new Error("Błąd podczas wczytywania danych");
+			throw new Error('Błąd podczas wczytywania danych');
 		})
 		.catch((error) => {
 			console.log(error);
