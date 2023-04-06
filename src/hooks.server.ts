@@ -1,17 +1,11 @@
-import { redirect, type Handle, type HandleFetch } from '@sveltejs/kit';
+import { redirect, type Handle } from '@sveltejs/kit';
 
 export const handle: Handle = async ({ event, resolve }) => {
-	if (event.url.pathname != '/') {
+	if (event.url.pathname != '/login') {
 		if (!event.cookies.get('auth')) {
-			throw redirect(303, '/');
+			throw redirect(303, '/login');
 		}
 	}
 	const response = await resolve(event);
 	return response;
 };
-
-export const handleFetch = (({ request, fetch }) => {
-	console.log('fetch');
-
-	return fetch(request);
-}) satisfies HandleFetch;

@@ -5,7 +5,7 @@
 	import Button, { Label } from '@smui/button';
 	import MenuSurface from '@smui/menu-surface';
 	import Paper, { Content } from '@smui/paper';
-	import type { ActionData } from './$types';
+	import type { ActionData } from '../$types';
 
 	export let form: ActionData;
 
@@ -16,7 +16,7 @@
 <div style="display: flex; justify-content: center; padding: 25px;">
 	<MenuSurface static style="max-width: 350px;">
 		<div class="columns margins" style="padding: 25px;">
-			<form method="POST">
+			<form method="POST" action="?/login">
 				<div class="mdc-typography--headline5" style="margin-bottom: 16px; text-align: center;">Logowanie</div>
 				<div style=" margin-top: 8px; margin-bottom: 8px;">
 					<Textfield type="email" input$name="email" variant="outlined" style="min-width: 300px;" bind:value={email}>

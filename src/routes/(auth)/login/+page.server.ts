@@ -1,7 +1,7 @@
 import { fail, type Actions, redirect } from '@sveltejs/kit';
 
 export const actions = {
-	default: async ({ cookies, request }) => {
+	login: async ({ cookies, request }) => {
 		const data = await request.formData();
 		const email = data.get('email');
 		const password = data.get('password');
@@ -15,9 +15,11 @@ export const actions = {
 			return fail(400, { error: true, errorMessage: 'Nie wprowadzono hasła' });
 		}
 
+		const userSign = btoa(email + ':' + password);
+
 		await fetch('http://localhost:8080/auth', {
 			headers: {
-				Authorization: 'Basic ' + btoa(email + ':' + password)
+				Authorization: 'Basic ' + userSign
 			}
 		})
 			.then((response) => {
@@ -29,7 +31,7 @@ export const actions = {
 
 		switch (status) {
 			case 200: {
-				cookies.set('auth', btoa(email + ':' + password));
+				cookies.set('auth', userSign);
 				throw redirect(303, 'tasks');
 			}
 			case 401: {
