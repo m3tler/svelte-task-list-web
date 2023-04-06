@@ -1,7 +1,10 @@
-export async function load() {
+import type { PageServerLoad } from '../$types';
+
+export const load: PageServerLoad = async ({ cookies }) => {
+	const userSign = cookies.get('auth');
 	const options = {
 		headers: {
-			Authorization: 'Basic ' + btoa('admin@admin.pl' + ':' + 'admin')
+			Authorization: 'Basic ' + userSign
 		}
 	};
 
@@ -12,7 +15,7 @@ export async function load() {
 		sortOrder: 'asc'
 	}).toString();
 
-	const data = await fetch('http://localhost:8080/tasks?' + params, options)
+	const tasks = await fetch('http://localhost:8080/tasks?' + params, options)
 		.then((response) => {
 			if (response.ok) {
 				return response.json();
@@ -23,5 +26,5 @@ export async function load() {
 			console.log(error);
 		});
 
-	return data;
-}
+	return { tasks, userSign };
+};

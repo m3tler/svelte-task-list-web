@@ -10,15 +10,21 @@
 	import Button from '@smui/button';
 	import Textfield from '@smui/textfield';
 	import FormField from '@smui/form-field';
-	import { addTask, deleteTasks, getTasks, editTask } from './service';
-	import type { Task } from './service';
 	import Dialog, { Title, Content, Actions } from '@smui/dialog';
 
 	export let data;
-	let tasks: Task[] = data.content;
+
+	type Task = {
+		id: number;
+		name: string;
+		done: boolean;
+		deadline: string;
+	};
+
+	let tasks: Task[] = data.tasks.content;
 	let rowsPerPage = 5;
 	let currentPage = 0;
-	let lastPage = data.totalPages - 1;
+	let lastPage = data.tasks.totalPages - 1;
 	let selectedTasksIds: number[] = [];
 	let sort: keyof Task = 'id';
 	let sortDirection: Lowercase<keyof typeof SortValue> = 'ascending';
@@ -102,11 +108,19 @@
 			searchParams.set('to', format(new Date(search.to), "yyyy-MM-dd'T'HH:mm:ss"));
 		}
 
-		getAllTasks();
+		getTasks();
 	}
 
-	function getAllTasks() {
-		getTasks(searchParams)
+	async function getTasks() {
+		const params = new URLSearchParams(Array.from(searchParams.entries())).toString();
+
+		const options = {
+			headers: {
+				Authorization: 'Basic ' + data.userSign
+			}
+		};
+
+		await fetch('http://localhost:8080/tasks?' + params, options)
 			.then((response) => {
 				if (response.ok) {
 					return response.json();
@@ -126,8 +140,19 @@
 			});
 	}
 
-	function addNewTask() {
-		addTask(taskToAdd)
+	async function addTask(task: Task) {
+		await fetch('http://localhost:8080/tasks', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: 'Basic ' + data.userSign
+			},
+			body: JSON.stringify({
+				name: task.name,
+				done: task.done,
+				deadline: new Date(task.deadline)
+			})
+		})
 			.then((response) => {
 				if (response.ok) {
 					return response.json();
@@ -150,8 +175,15 @@
 			});
 	}
 
-	function modifyTask() {
-		editTask(taskToEdit)
+	async function editTask(task: any) {
+		await fetch('http://localhost:8080/tasks/' + task.id, {
+			method: 'PUT',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: 'Basic ' + data.userSign
+			},
+			body: JSON.stringify(task)
+		})
 			.then((response) => {
 				if (response.ok) {
 					return response.json();
@@ -168,8 +200,14 @@
 			});
 	}
 
-	function deleteSelectedTasks() {
-		deleteTasks(selectedTasksIds)
+	async function deleteTasks() {
+		await fetch('http://localhost:8080/tasks/' + selectedTasksIds.join(','), {
+			method: 'DELETE',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: 'Basic ' + data.userSign
+			}
+		})
 			.then(() => {
 				selectedTasksIds = [];
 				isDeleteDialogOpen = false;
@@ -266,7 +304,7 @@
 	sortable
 	bind:sort
 	bind:sortDirection
-	on:SMUIDataTable:sorted={() => getTasks(searchParams)}
+	on:SMUIDataTable:sorted={() => getTasks()}
 	table$aria-label="Todo list"
 	style="width: 100%;"
 >
@@ -387,7 +425,7 @@
 		<Button on:click={() => (isAddDialogOpen = false)}>
 			<Label>Cofnij</Label>
 		</Button>
-		<Button on:click={() => addNewTask()}>
+		<Button on:click={() => addTask(taskToAdd)}>
 			<Label>Dodaj</Label>
 		</Button>
 	</Actions>
@@ -418,7 +456,7 @@
 		<Button on:click={() => (isEditDialogOpen = false)}>
 			<Label>Cofnij</Label>
 		</Button>
-		<Button on:click={() => modifyTask()}>
+		<Button on:click={() => editTask(taskToEdit)}>
 			<Label>Edytuj</Label>
 		</Button>
 	</Actions>
@@ -431,7 +469,7 @@
 		<Button on:click={() => (isDeleteDialogOpen = false)}>
 			<Label>Nie</Label>
 		</Button>
-		<Button on:click={() => deleteSelectedTasks()}>
+		<Button on:click={() => deleteTasks()}>
 			<Label>Tak</Label>
 		</Button>
 	</Actions>
