@@ -11,6 +11,7 @@
 	import Textfield from '@smui/textfield';
 	import FormField from '@smui/form-field';
 	import Dialog, { Title, Content, Actions } from '@smui/dialog';
+	import { PUBLIC_API_URL } from '$env/static/public';
 
 	export let data;
 
@@ -120,7 +121,7 @@
 			}
 		};
 
-		await fetch('http://localhost:8080/tasks?' + params, options)
+		await fetch(PUBLIC_API_URL + '/tasks?' + params, options)
 			.then((response) => {
 				if (response.ok) {
 					return response.json();
@@ -141,7 +142,7 @@
 	}
 
 	async function addTask(task: Task) {
-		await fetch('http://localhost:8080/tasks', {
+		await fetch(PUBLIC_API_URL + '/tasks', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -176,7 +177,7 @@
 	}
 
 	async function editTask(task: any) {
-		await fetch('http://localhost:8080/tasks/' + task.id, {
+		await fetch(PUBLIC_API_URL + '/tasks/' + task.id, {
 			method: 'PUT',
 			headers: {
 				'Content-Type': 'application/json',
@@ -201,7 +202,7 @@
 	}
 
 	async function deleteTasks() {
-		await fetch('http://localhost:8080/tasks/' + selectedTasksIds.join(','), {
+		await fetch(PUBLIC_API_URL + '/tasks/' + selectedTasksIds.join(','), {
 			method: 'DELETE',
 			headers: {
 				'Content-Type': 'application/json',

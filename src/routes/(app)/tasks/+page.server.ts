@@ -1,9 +1,10 @@
+import { PUBLIC_API_URL } from '$env/static/public';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ cookies }) => {
 	const userSign = cookies.get('auth');
 
-	const tasks = await fetch('http://localhost:8080/tasks', {
+	const tasks = await fetch(PUBLIC_API_URL + '/tasks', {
 		headers: {
 			Authorization: 'Basic ' + userSign
 		}

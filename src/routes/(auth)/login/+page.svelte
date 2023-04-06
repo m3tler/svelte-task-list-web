@@ -8,7 +8,6 @@
 	import type { ActionData } from '../$types';
 
 	export let form: ActionData;
-
 	let email = '';
 	let password = '';
 </script>

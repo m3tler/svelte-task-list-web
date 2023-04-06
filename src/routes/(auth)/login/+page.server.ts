@@ -1,3 +1,4 @@
+import { PUBLIC_API_URL } from '$env/static/public';
 import { fail, type Actions, redirect } from '@sveltejs/kit';
 
 export const actions = {
@@ -17,7 +18,7 @@ export const actions = {
 
 		const userSign = btoa(email + ':' + password);
 
-		await fetch('http://localhost:8080/auth', {
+		await fetch(PUBLIC_API_URL + '/auth', {
 			headers: {
 				Authorization: 'Basic ' + userSign
 			}
