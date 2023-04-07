@@ -1,38 +1,33 @@
-# create-svelte
+# Task list - core app
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
+## Table of contents
+* [General info](#general-info)
+* [Technologies](#technologies)
+* [Set up](#set-up)
 
-## Creating a project
+## General info
+This application is a frontend site of the task list project. 
 
-If you're seeing this, you've probably already done this step. Congrats!
+## Technologies
+Project is created with:
+* Node: 18.15.0
+* SvelteKit: 1.5.0
+* Svelte Material UI: 7
 
-```bash
-# create a new project in the current directory
-npm create svelte@latest
+## Set up
+This section shows how to set up and install the application on the Tomcat server.
 
-# create a new project in my-app
-npm create svelte@latest my-app
-```
+Important: Before the app installation on the Tomcat server make sure you have Node.js installed.
 
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```bash
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+To set up the application follow these steps:
+1. Clone the application using ```git clone https://github.com/m3tler/task-list-web.git```
+2. Install npm using ```npm install``` command.
+3. Install npm dotenv using ```npm install dotenv``` command (SvelteKit will be able to read environment variables from your .env file)
+4. Go to .env file and set the following properties:
+- PUBLIC_API_URL - URL of the API server application,
+- ORIGIN - origin of the web application,
+- HOST - host of the web application,
+- PORT - port of the web application.
+5. Build the application using ```npm run build``` command.
+6. Run the application using ```node -r dotenv/config build``` command.
+7. Open the browser and go to specified origin.
