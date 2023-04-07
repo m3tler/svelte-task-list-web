@@ -50,6 +50,7 @@
 	"type": "module",
 	"dependencies": {
 		"date-fns": "^2.29.3",
+		"dotenv": "^16.0.3",
 		"svelte-feather-icons": "^4.0.0",
 		"svelte-material-ui": "^7.0.0-beta.0"
 	}
