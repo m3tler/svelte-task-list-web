@@ -30,10 +30,10 @@
 	let sort: keyof Task = 'id';
 	let sortDirection: Lowercase<keyof typeof SortValue> = 'ascending';
 	let activeTab = 'Wszystkie';
+	let searchDoneOptions = ['Wszystkie', 'Wykonane', 'Do zrobienia'];
 	let search = {
 		name: '',
-		done: true,
-		todo: true,
+		done: searchDoneOptions[0],
 		from: '',
 		to: ''
 	};
@@ -55,8 +55,6 @@
 	let isErrorDialogOpen = false;
 	let errorMessage = '';
 
-	$: currentPage, rowsPerPage, sort, activeTab, search, isDeleteDialogOpen, isAddDialogOpen, isEditDialogOpen;
-
 	$: if (currentPage + 1 > lastPage) {
 		currentPage = lastPage;
 	}
@@ -76,8 +74,7 @@
 		searchParams.set('name', search.name.toLowerCase());
 
 		if (activeTab === 'Wykonane') {
-			search.done = true;
-			search.todo = true;
+			search.done = 'Wszystkie';
 			searchParams.set('done', 'true');
 		}
 
@@ -91,9 +88,9 @@
 			searchParams.set('to', format(new Date(), "yyyy-MM-dd'T'HH:mm:ss"));
 		}
 
-		if (search.done == true && search.todo == false) {
+		if (search.done == searchDoneOptions[1]) {
 			searchParams.set('done', 'true');
-		} else if (search.done == false && search.todo == true) {
+		} else if (search.done == searchDoneOptions[2]) {
 			searchParams.set('done', 'false');
 		}
 
@@ -209,6 +206,12 @@
 				Authorization: 'Basic ' + data.userSign
 			}
 		})
+			.then((response) => {
+				if (response.ok) {
+					return;
+				}
+				throw new Error('Błąd podczas usuwania danych');
+			})
 			.then(() => {
 				selectedTasksIds = [];
 				isDeleteDialogOpen = false;
@@ -225,22 +228,9 @@
 		else selectedTasksIds.push(id);
 	}
 
-	function changeDone() {
-		if (search.done == true) {
-			search.todo = true;
-		}
-	}
-
-	function changeTodo() {
-		if (search.todo == true) {
-			search.done = true;
-		}
-	}
-
 	function resetSearchFilters() {
 		search.name = '';
-		search.done = true;
-		search.todo = true;
+		search.done = 'Wszystkie';
 		search.from = '';
 		search.to = '';
 	}
@@ -271,7 +261,7 @@
 </div>
 
 <!-- SEARCHING BAR -->
-<div style="margin-bottom: 8px; vertical-align: middle;">
+<div style="display: flex; flex-direction: row; margin-bottom: 8px; vertical-align: middle;">
 	<Textfield
 		type="search"
 		class="shaped-outlined"
@@ -280,17 +270,23 @@
 		label="Nazwa"
 		style="min-width: 300px; margin-right: 8px;"
 	/>
-	<FormField>
-		<Checkbox bind:checked={search.done} on:click={changeDone} disabled={activeTab === 'Wykonane'} />
-		<span slot="label">Wykonane</span>
-	</FormField>
-	<FormField style="margin-right: 8px;">
-		<Checkbox bind:checked={search.todo} on:click={changeTodo} disabled={activeTab === 'Wykonane'} />
-		<span slot="label">Do zrobienia</span>
-	</FormField>
-	<Textfield type="date" class="shaped-outlined" variant="outlined" bind:value={search.from} label="Od" />
+	<div style="margin-bottom: 1px;">
+		<Select bind:value={search.done} variant="outlined" style="margin-right: 8px;">
+			{#each searchDoneOptions as value}
+				<Option {value}>{value}</Option>
+			{/each}
+		</Select>
+	</div>
 	<Textfield
-		type="date"
+		type="datetime-local"
+		class="shaped-outlined"
+		variant="outlined"
+		bind:value={search.from}
+		label="Od"
+		style="margin-right: 8px;"
+	/>
+	<Textfield
+		type="datetime-local"
 		class="shaped-outlined"
 		variant="outlined"
 		bind:value={search.to}
