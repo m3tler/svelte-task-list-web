@@ -12,6 +12,7 @@
 	import FormField from '@smui/form-field';
 	import Dialog, { Title, Content, Actions } from '@smui/dialog';
 	import { PUBLIC_API_URL } from '$env/static/public';
+	import { Icon as CommonIcon } from '@smui/common';
 
 	export let data;
 
@@ -250,7 +251,7 @@
 </div>
 
 <!-- ADD AND DELETE ACTIONS -->
-<div style="margin-bottom: 16px;">
+<div style="margin-bottom: 8px;">
 	<Button variant="raised" on:click={() => (isAddDialogOpen = true)}>Dodaj</Button>
 	<Button
 		variant="raised"
@@ -261,39 +262,78 @@
 </div>
 
 <!-- SEARCHING BAR -->
-<div style="display: flex; flex-direction: row; margin-bottom: 8px; vertical-align: middle;">
-	<Textfield
-		type="search"
-		class="shaped-outlined"
-		variant="outlined"
-		bind:value={search.name}
-		label="Nazwa"
-		style="min-width: 300px; margin-right: 8px;"
-	/>
-	<div style="margin-bottom: 1px;">
+<div style="display: flex; flex-direction: row; margin-bottom: 8px; height: 100%;">
+	<div>
+		<div style="display: flex; flex-direction: row;">
+			<CommonIcon
+				class="material-icons"
+				style="font-size: 1em; line-height: normal; vertical-align: top; margin-right: 4px; display: inline-block; align-self: center"
+				>abc</CommonIcon
+			>
+			<div class="mdc-typography--caption" style="display: inline-block; align-self: center">Nazwa</div>
+		</div>
+		<Textfield
+			type="search"
+			class="shaped-outlined"
+			variant="outlined"
+			bind:value={search.name}
+			noLabel="true"
+			input$placeholder="Wpisz nazwę"
+			style="min-width: 300px; margin-right: 8px;"
+		/>
+	</div>
+	<div style="display: inline-block; align-self: flex-end;">
+		<div style="display: flex; flex-direction: row;">
+			<CommonIcon
+				class="material-icons"
+				style="font-size: 1em; line-height: normal; vertical-align: top; margin-right: 4px; display: inline-block; align-self: center"
+				>done</CommonIcon
+			>
+			<div class="mdc-typography--caption" style="display: inline-block; align-self: center">Wykonane</div>
+		</div>
 		<Select bind:value={search.done} variant="outlined" style="margin-right: 8px;">
 			{#each searchDoneOptions as value}
 				<Option {value}>{value}</Option>
 			{/each}
 		</Select>
 	</div>
-	<Textfield
-		type="datetime-local"
-		class="shaped-outlined"
-		variant="outlined"
-		bind:value={search.from}
-		label="Od"
-		style="margin-right: 8px;"
-	/>
-	<Textfield
-		type="datetime-local"
-		class="shaped-outlined"
-		variant="outlined"
-		bind:value={search.to}
-		label="Do"
-		style="margin-right: 8px;"
-	/>
-	<Button on:click={resetSearchFilters}>Wyczyść</Button>
+	<div>
+		<div style="display: flex; flex-direction: row;">
+			<CommonIcon
+				class="material-icons"
+				style="font-size: 1em; line-height: normal; vertical-align: top; margin-right: 4px; display: inline-block; align-self: center"
+				>arrow_forward</CommonIcon
+			>
+			<div class="mdc-typography--caption">Od</div>
+		</div>
+		<Textfield
+			type="datetime-local"
+			class="shaped-outlined"
+			variant="outlined"
+			bind:value={search.from}
+			noLabel="true"
+			style="margin-right: 8px;"
+		/>
+	</div>
+	<div>
+		<div style="display: flex; flex-direction: row;">
+			<CommonIcon
+				class="material-icons"
+				style="font-size: 1em; line-height: normal; vertical-align: top; margin-right: 4px; display: inline-block; align-self: center"
+				>arrow_back</CommonIcon
+			>
+			<div class="mdc-typography--caption">Do</div>
+		</div>
+		<Textfield
+			type="datetime-local"
+			class="shaped-outlined"
+			variant="outlined"
+			bind:value={search.to}
+			noLabel="true"
+			style="margin-right: 8px;"
+		/>
+	</div>
+	<Button on:click={resetSearchFilters} style="display: inline-block; align-self: flex-end;">Wyczyść filtry</Button>
 </div>
 
 <!-- DATA TABLE -->

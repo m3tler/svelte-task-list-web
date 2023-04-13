@@ -18,31 +18,41 @@
 			<form method="POST" action="?/login">
 				<div class="mdc-typography--headline5" style="margin-bottom: 16px; text-align: center;">Logowanie</div>
 				<div style=" margin-top: 8px; margin-bottom: 8px;">
-					<Textfield type="email" input$name="email" variant="outlined" style="min-width: 300px;" bind:value={email}>
-						<svelte:fragment slot="label">
-							<CommonIcon class="material-icons" style="font-size: 1em; line-height: normal; vertical-align: top;"
-								>email</CommonIcon
-							> Email
-						</svelte:fragment>
-						<HelperText slot="helper">Wprowadź email</HelperText>
-					</Textfield>
+					<div style="display: flex; flex-direction: row;">
+						<CommonIcon
+							class="material-icons"
+							style="font-size: 1em; line-height: normal; vertical-align: top; margin-right: 4px;">email</CommonIcon
+						>
+						<div class="mdc-typography--caption">Email</div>
+					</div>
+					<Textfield
+						type="email"
+						noLabel="true"
+						input$name="email"
+						input$placeholder="Wpisz email"
+						variant="outlined"
+						style="min-width: 300px;"
+						bind:value={email}
+					/>
 				</div>
 				<div style="margin-bottom: 8px;">
+					<div style="display: flex; flex-direction: row;">
+						<CommonIcon
+							class="material-icons"
+							style="font-size: 1em; line-height: normal; vertical-align: top; margin-right: 4px;">password</CommonIcon
+						>
+						<div class="mdc-typography--caption">Hasło</div>
+					</div>
 					<Textfield
 						on:input={() => (form = null)}
 						type="password"
+						noLabel="true"
 						input$name="password"
+						input$placeholder="Wpisz hasło"
 						variant="outlined"
 						style="min-width: 300px;"
 						bind:value={password}
-					>
-						<svelte:fragment slot="label">
-							<CommonIcon class="material-icons" style="font-size: 1em; line-height: normal; vertical-align: top;"
-								>password</CommonIcon
-							> Hasło
-						</svelte:fragment>
-						<HelperText slot="helper">Wprowadź hasło</HelperText>
-					</Textfield>
+					/>
 				</div>
 				<div style="text-align: end;">
 					<Button type="submit" variant="raised">
