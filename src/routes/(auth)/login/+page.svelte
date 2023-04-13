@@ -1,11 +1,10 @@
 <script lang="ts">
-	import Textfield from '@smui/textfield';
-	import HelperText from '@smui/textfield/helper-text';
-	import { Icon as CommonIcon } from '@smui/common';
 	import Button, { Label } from '@smui/button';
 	import MenuSurface from '@smui/menu-surface';
 	import Paper, { Content } from '@smui/paper';
 	import type { ActionData } from '../$types';
+	import { Icon as CommonIcon } from '@smui/common';
+	import TextField from '$lib/components/TextField.svelte';
 
 	export let form: ActionData;
 	let email = '';
@@ -18,40 +17,25 @@
 			<form method="POST" action="?/login">
 				<div class="mdc-typography--headline5" style="margin-bottom: 16px; text-align: center;">Logowanie</div>
 				<div style=" margin-top: 8px; margin-bottom: 8px;">
-					<div style="display: flex; flex-direction: row;">
-						<CommonIcon
-							class="material-icons"
-							style="font-size: 1em; line-height: normal; vertical-align: top; margin-right: 4px;">email</CommonIcon
-						>
-						<div class="mdc-typography--caption">Email</div>
-					</div>
-					<Textfield
+					<TextField
+						name="email"
 						type="email"
-						noLabel="true"
-						input$name="email"
-						input$placeholder="Wpisz email"
-						variant="outlined"
-						style="min-width: 300px;"
 						bind:value={email}
+						labelIcon="email"
+						label="Email"
+						placeholder="Wprowadź email"
+						style="min-width: 300px;"
 					/>
 				</div>
 				<div style="margin-bottom: 8px;">
-					<div style="display: flex; flex-direction: row;">
-						<CommonIcon
-							class="material-icons"
-							style="font-size: 1em; line-height: normal; vertical-align: top; margin-right: 4px;">password</CommonIcon
-						>
-						<div class="mdc-typography--caption">Hasło</div>
-					</div>
-					<Textfield
-						on:input={() => (form = null)}
+					<TextField
+						name="password"
 						type="password"
-						noLabel="true"
-						input$name="password"
-						input$placeholder="Wpisz hasło"
-						variant="outlined"
-						style="min-width: 300px;"
 						bind:value={password}
+						labelIcon="password"
+						label="Hasło"
+						placeholder="Wprowadź hasło"
+						style="min-width: 300px;"
 					/>
 				</div>
 				<div style="text-align: end;">

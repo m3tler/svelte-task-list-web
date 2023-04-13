@@ -13,6 +13,7 @@
 	import Dialog, { Title, Content, Actions } from '@smui/dialog';
 	import { PUBLIC_API_URL } from '$env/static/public';
 	import { Icon as CommonIcon } from '@smui/common';
+	import TextField from '$lib/components/TextField.svelte';
 
 	export let data;
 
@@ -264,31 +265,17 @@
 <!-- SEARCHING BAR -->
 <div style="display: flex; flex-direction: row; margin-bottom: 8px; height: 100%;">
 	<div>
-		<div style="display: flex; flex-direction: row;">
-			<CommonIcon
-				class="material-icons"
-				style="font-size: 1em; line-height: normal; vertical-align: top; margin-right: 4px; display: inline-block; align-self: center"
-				>abc</CommonIcon
-			>
-			<div class="mdc-typography--caption" style="display: inline-block; align-self: center">Nazwa</div>
-		</div>
-		<Textfield
+		<TextField
 			type="search"
-			class="shaped-outlined"
-			variant="outlined"
 			bind:value={search.name}
-			noLabel="true"
-			input$placeholder="Wpisz nazwę"
+			label="Nazwa"
+			placeholder="Wprowadź nazwę"
+			class="shaped-outlined"
 			style="min-width: 300px; margin-right: 8px;"
 		/>
 	</div>
 	<div style="display: inline-block; align-self: flex-end;">
 		<div style="display: flex; flex-direction: row;">
-			<CommonIcon
-				class="material-icons"
-				style="font-size: 1em; line-height: normal; vertical-align: top; margin-right: 4px; display: inline-block; align-self: center"
-				>done</CommonIcon
-			>
 			<div class="mdc-typography--caption" style="display: inline-block; align-self: center">Wykonane</div>
 		</div>
 		<Select bind:value={search.done} variant="outlined" style="margin-right: 8px;">
@@ -298,38 +285,20 @@
 		</Select>
 	</div>
 	<div>
-		<div style="display: flex; flex-direction: row;">
-			<CommonIcon
-				class="material-icons"
-				style="font-size: 1em; line-height: normal; vertical-align: top; margin-right: 4px; display: inline-block; align-self: center"
-				>arrow_forward</CommonIcon
-			>
-			<div class="mdc-typography--caption">Od</div>
-		</div>
-		<Textfield
+		<TextField
 			type="datetime-local"
-			class="shaped-outlined"
-			variant="outlined"
 			bind:value={search.from}
-			noLabel="true"
+			label="Od"
+			class="shaped-outlined"
 			style="margin-right: 8px;"
 		/>
 	</div>
 	<div>
-		<div style="display: flex; flex-direction: row;">
-			<CommonIcon
-				class="material-icons"
-				style="font-size: 1em; line-height: normal; vertical-align: top; margin-right: 4px; display: inline-block; align-self: center"
-				>arrow_back</CommonIcon
-			>
-			<div class="mdc-typography--caption">Do</div>
-		</div>
-		<Textfield
+		<TextField
 			type="datetime-local"
-			class="shaped-outlined"
-			variant="outlined"
 			bind:value={search.to}
-			noLabel="true"
+			label="Do"
+			class="shaped-outlined"
 			style="margin-right: 8px;"
 		/>
 	</div>
@@ -442,14 +411,15 @@
 	<Title id="simple-title">Dodawanie zadania</Title>
 	<Content>
 		<div>
-			<Textfield
+			<TextField
 				bind:value={taskToAdd.name}
 				label="Nazwa"
-				style="min-width: 300px; margin-top: 8px; margin-bottom: 8px;"
+				placeholder="Wprowadź nazwę"
+				style="min-width: 300px; margin-bottom: 8px;"
 			/>
 		</div>
 		<div>
-			<Textfield type="datetime-local" bind:value={taskToAdd.deadline} label="Termin" style="margin-bottom: 8px;" />
+			<TextField type="datetime-local" bind:value={taskToAdd.deadline} label="Termin" style="margin-bottom: 8px;" />
 		</div>
 		<div>
 			<FormField>
@@ -473,14 +443,10 @@
 	<Title id="simple-title">Edytowanie zadania</Title>
 	<Content>
 		<div>
-			<Textfield
-				bind:value={taskToEdit.name}
-				label="Nazwa"
-				style="min-width: 300px; margin-top: 8px; margin-bottom: 8px;"
-			/>
+			<TextField bind:value={taskToEdit.name} label="Nazwa" style="min-width: 300px; margin-bottom: 8px;" />
 		</div>
 		<div>
-			<Textfield type="datetime-local" bind:value={taskToEdit.deadline} label="Termin" style="margin-bottom: 8px;" />
+			<TextField type="datetime-local" bind:value={taskToEdit.deadline} label="Termin" style="margin-bottom: 8px;" />
 		</div>
 		<div>
 			<FormField>
