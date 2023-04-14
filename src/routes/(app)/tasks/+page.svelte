@@ -8,21 +8,17 @@
 	import TabBar from '@smui/tab-bar';
 	import { format } from 'date-fns';
 	import Button from '@smui/button';
-	import Textfield from '@smui/textfield';
-	import FormField from '@smui/form-field';
-	import Dialog, { Title, Content, Actions } from '@smui/dialog';
 	import { PUBLIC_API_URL } from '$env/static/public';
-	import { Icon as CommonIcon } from '@smui/common';
 	import TextField from '$lib/components/TextField.svelte';
+	import AlertDialog from '$lib/dialogs/AlertDialog.svelte';
+	import ConfirmationDialog from '$lib/dialogs/ConfirmationDialog.svelte';
+	import type { Task } from '$lib/types';
+	import EditTaskDialog from '$lib/dialogs/task/EditTaskDialog.svelte';
+	import { setContext } from 'svelte';
+	import AddTaskDialog from '$lib/dialogs/task/AddTaskDialog.svelte';
 
 	export let data;
-
-	type Task = {
-		id: number;
-		name: string;
-		done: boolean;
-		deadline: string;
-	};
+	setContext('sign', data.userSign);
 
 	let tasks: Task[] = data.tasks.content;
 	let rowsPerPage = 5;
@@ -41,12 +37,6 @@
 	};
 	let isDeleteDialogOpen = false;
 	let isAddDialogOpen = false;
-	let taskToAdd: Task = {
-		id: 0,
-		name: '',
-		done: false,
-		deadline: ''
-	};
 	let isEditDialogOpen = false;
 	let taskToEdit: Task = {
 		id: 0,
@@ -132,41 +122,6 @@
 				currentPage = data.pageable.pageNumber;
 				rowsPerPage = data.pageable.pageSize;
 				lastPage = data.totalPages - 1 >= 0 ? data.totalPages - 1 : 0;
-			})
-			.catch((error) => {
-				console.log(error);
-				errorMessage = error;
-				isErrorDialogOpen = true;
-			});
-	}
-
-	async function addTask(task: Task) {
-		await fetch(PUBLIC_API_URL + '/tasks', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: 'Basic ' + data.userSign
-			},
-			body: JSON.stringify({
-				name: task.name,
-				done: task.done,
-				deadline: new Date(task.deadline)
-			})
-		})
-			.then((response) => {
-				if (response.ok) {
-					return response.json();
-				}
-				throw new Error('Błąd podczas zapisywania danych');
-			})
-			.then(() => {
-				taskToAdd = {
-					id: 0,
-					name: '',
-					done: false,
-					deadline: ''
-				};
-				isAddDialogOpen = false;
 			})
 			.catch((error) => {
 				console.log(error);
@@ -407,84 +362,17 @@
 </DataTable>
 
 <!-- ADD DIALOG -->
-<Dialog bind:open={isAddDialogOpen} aria-labelledby="simple-title" aria-describedby="simple-content">
-	<Title id="simple-title">Dodawanie zadania</Title>
-	<Content>
-		<div>
-			<TextField
-				bind:value={taskToAdd.name}
-				label="Nazwa"
-				placeholder="Wprowadź nazwę"
-				style="min-width: 300px; margin-bottom: 8px;"
-			/>
-		</div>
-		<div>
-			<TextField type="datetime-local" bind:value={taskToAdd.deadline} label="Termin" style="margin-bottom: 8px;" />
-		</div>
-		<div>
-			<FormField>
-				<Checkbox bind:checked={taskToAdd.done} />
-				<span slot="label">Wykonane</span>
-			</FormField>
-		</div>
-	</Content>
-	<Actions>
-		<Button on:click={() => (isAddDialogOpen = false)}>
-			<Label>Cofnij</Label>
-		</Button>
-		<Button on:click={() => addTask(taskToAdd)}>
-			<Label>Dodaj</Label>
-		</Button>
-	</Actions>
-</Dialog>
+<AddTaskDialog bind:open={isAddDialogOpen} />
 
 <!-- EDIT DIALOG -->
-<Dialog bind:open={isEditDialogOpen} aria-labelledby="simple-title" aria-describedby="simple-content">
-	<Title id="simple-title">Edytowanie zadania</Title>
-	<Content>
-		<div>
-			<TextField bind:value={taskToEdit.name} label="Nazwa" style="min-width: 300px; margin-bottom: 8px;" />
-		</div>
-		<div>
-			<TextField type="datetime-local" bind:value={taskToEdit.deadline} label="Termin" style="margin-bottom: 8px;" />
-		</div>
-		<div>
-			<FormField>
-				<Checkbox bind:checked={taskToEdit.done} />
-				<span slot="label">Wykonane</span>
-			</FormField>
-		</div>
-	</Content>
-	<Actions>
-		<Button on:click={() => (isEditDialogOpen = false)}>
-			<Label>Cofnij</Label>
-		</Button>
-		<Button on:click={() => editTask(taskToEdit)}>
-			<Label>Edytuj</Label>
-		</Button>
-	</Actions>
-</Dialog>
+<EditTaskDialog bind:open={isEditDialogOpen} bind:task={taskToEdit} />
 
 <!-- DELETE DIALOG -->
-<Dialog bind:open={isDeleteDialogOpen} aria-labelledby="simple-title" aria-describedby="simple-content">
-	<Title id="simple-title">Czy chcesz usunąć zaznaczone zadania?</Title>
-	<Actions>
-		<Button on:click={() => (isDeleteDialogOpen = false)}>
-			<Label>Nie</Label>
-		</Button>
-		<Button on:click={() => deleteTasks()}>
-			<Label>Tak</Label>
-		</Button>
-	</Actions>
-</Dialog>
+<ConfirmationDialog
+	bind:open={isDeleteDialogOpen}
+	title="Czy chcesz usunąć zaznaczone zadania?"
+	on:click={() => deleteTasks()}
+/>
 
 <!-- ERROR DIALOG -->
-<Dialog bind:open={isErrorDialogOpen} aria-labelledby="simple-title" aria-describedby="simple-content">
-	<Title id="simple-title">Wystąpił bład</Title>
-	<Content>{errorMessage}</Content>
-	<Actions>
-		<Button on:click={() => (isErrorDialogOpen = false)}>
-			<Label>Ok</Label>
-		</Button>
-	</Actions>
-</Dialog>
+<AlertDialog bind:open={isErrorDialogOpen} title="Wystąpił błąd" message={errorMessage} />
