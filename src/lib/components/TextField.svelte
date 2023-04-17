@@ -33,5 +33,6 @@
 	noLabel={true}
 	input$name={name}
 	input$placeholder={placeholder}
+	on:input
 	{style}
 />

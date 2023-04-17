@@ -10,6 +10,7 @@
 	import { PUBLIC_API_URL } from '$env/static/public';
 
 	export let open: boolean;
+	export let trigger: boolean;
 	let task: Task = {
 		id: 0,
 		name: '',
@@ -20,12 +21,14 @@
 	const ERROR_MESSAGE = 'Błąd podczas zapisywania danych';
 	let isError = false;
 
-	async function addTask(task: Task) {
+	const userSign = getContext('sign');
+
+	async function addTask() {
 		await fetch(PUBLIC_API_URL + '/tasks', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				Authorization: 'Basic ' + getContext('sign')
+				Authorization: 'Basic ' + userSign
 			},
 			body: JSON.stringify({
 				name: task.name,
@@ -48,11 +51,16 @@
 				};
 
 				open = false;
+				update();
 			})
 			.catch((error) => {
 				console.log(error);
 				isError = true;
 			});
+	}
+
+	function update() {
+		trigger = !trigger;
 	}
 </script>
 
@@ -82,7 +90,7 @@
 		<Button on:click={() => (open = false)}>
 			<Label>Cofnij</Label>
 		</Button>
-		<Button on:click={() => addTask(task)}>
+		<Button on:click={addTask}>
 			<Label>Dodaj</Label>
 		</Button>
 	</Actions>

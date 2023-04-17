@@ -12,7 +12,7 @@
 				</Section>
 				<Section align="end" toolbar>
 					<form method="POST" action="/logout?/logout">
-						<Button on:click={() => history.replaceState(history.state, '', '/logout?/logout')}>Wyloguj</Button>
+						<Button>Wyloguj</Button>
 					</form>
 				</Section>
 			</Row>

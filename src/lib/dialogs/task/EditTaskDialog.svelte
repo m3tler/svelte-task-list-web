@@ -11,17 +11,19 @@
 
 	export let open: boolean;
 	export let task: Task;
+	export let trigger: boolean;
 
 	const ERROR_MESSAGE: string = 'Błąd podczas edytowania danych';
 	let isError: boolean = false;
 
+	const userSign = getContext('sign');
+
 	async function editTask() {
-		console.log('edit');
 		await fetch(PUBLIC_API_URL + '/tasks/' + task.id, {
 			method: 'PUT',
 			headers: {
 				'Content-Type': 'application/json',
-				Authorization: 'Basic ' + getContext('sign')
+				Authorization: 'Basic ' + userSign
 			},
 			body: JSON.stringify(task)
 		})
@@ -33,11 +35,16 @@
 			})
 			.then(() => {
 				open = false;
+				update();
 			})
 			.catch((error) => {
 				console.log(error);
 				isError = true;
 			});
+	}
+
+	function update() {
+		trigger = !trigger;
 	}
 </script>
 

@@ -14,8 +14,8 @@
 	import ConfirmationDialog from '$lib/dialogs/ConfirmationDialog.svelte';
 	import type { Task } from '$lib/types';
 	import EditTaskDialog from '$lib/dialogs/task/EditTaskDialog.svelte';
-	import { setContext } from 'svelte';
 	import AddTaskDialog from '$lib/dialogs/task/AddTaskDialog.svelte';
+	import { setContext } from 'svelte';
 
 	export let data;
 	setContext('sign', data.userSign);
@@ -24,6 +24,7 @@
 	let rowsPerPage = 5;
 	let currentPage = 0;
 	let lastPage = data.tasks.totalPages - 1;
+	let searchName = '';
 	let selectedTasksIds: number[] = [];
 	let sort: keyof Task = 'id';
 	let sortDirection: Lowercase<keyof typeof SortValue> = 'ascending';
@@ -46,6 +47,7 @@
 	};
 	let isErrorDialogOpen = false;
 	let errorMessage = '';
+	let trigger: boolean = false;
 
 	$: if (currentPage + 1 > lastPage) {
 		currentPage = lastPage;
@@ -53,11 +55,7 @@
 
 	let searchParams = new Map<string, string>();
 	$: {
-		isDeleteDialogOpen;
-		isAddDialogOpen;
-		isEditDialogOpen;
-		isErrorDialogOpen;
-
+		trigger;
 		searchParams.clear();
 		searchParams.set('page', currentPage.toString());
 		searchParams.set('size', rowsPerPage.toString());
@@ -147,6 +145,7 @@
 			})
 			.then(() => {
 				isEditDialogOpen = false;
+				update();
 			})
 			.catch((error) => {
 				console.log(error);
@@ -172,6 +171,7 @@
 			.then(() => {
 				selectedTasksIds = [];
 				isDeleteDialogOpen = false;
+				update();
 			})
 			.catch((error) => {
 				console.log(error);
@@ -194,6 +194,24 @@
 
 	function isTerminate(date: Date) {
 		return new Date(date).getTime() < Date.now();
+	}
+
+	function handleEnter(event: any, fun: Function) {
+		if (event.keyCode == 13) {
+			fun();
+		}
+	}
+
+	function updateSearchName() {
+		const time = window.performance.now();
+		search.name = searchName;
+		update();
+	}
+
+	function updateTimer() {}
+
+	function update() {
+		trigger = !trigger;
 	}
 </script>
 
@@ -222,11 +240,12 @@
 	<div>
 		<TextField
 			type="search"
-			bind:value={search.name}
+			bind:value={searchName}
 			label="Nazwa"
 			placeholder="Wprowadź nazwę"
 			class="shaped-outlined"
 			style="min-width: 300px; margin-right: 8px;"
+			on:input={updateSearchName}
 		/>
 	</div>
 	<div style="display: inline-block; align-self: flex-end;">
@@ -265,7 +284,7 @@
 	sortable
 	bind:sort
 	bind:sortDirection
-	on:SMUIDataTable:sorted={() => getTasks()}
+	on:SMUIDataTable:sorted={update}
 	table$aria-label="Todo list"
 	style="width: 100%;"
 >
@@ -362,10 +381,10 @@
 </DataTable>
 
 <!-- ADD DIALOG -->
-<AddTaskDialog bind:open={isAddDialogOpen} />
+<AddTaskDialog bind:open={isAddDialogOpen} bind:trigger />
 
 <!-- EDIT DIALOG -->
-<EditTaskDialog bind:open={isEditDialogOpen} bind:task={taskToEdit} />
+<EditTaskDialog bind:open={isEditDialogOpen} bind:task={taskToEdit} bind:trigger />
 
 <!-- DELETE DIALOG -->
 <ConfirmationDialog
