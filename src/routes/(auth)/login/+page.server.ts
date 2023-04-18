@@ -1,6 +1,5 @@
 import { PUBLIC_API_URL } from '$env/static/public';
 import { fail, type Actions, redirect } from '@sveltejs/kit';
-import { setContext } from 'svelte';
 
 export const actions = {
 	login: async ({ cookies, request }) => {
