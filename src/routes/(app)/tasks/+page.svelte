@@ -25,6 +25,8 @@
 	let currentPage = 0;
 	let lastPage = data.tasks.totalPages - 1;
 	let searchName = '';
+	let searchFrom = '';
+	let searchTo = '';
 	let selectedTasksIds: number[] = [];
 	let sort: keyof Task = 'id';
 	let sortDirection: Lowercase<keyof typeof SortValue> = 'ascending';
@@ -47,6 +49,7 @@
 	};
 	let isErrorDialogOpen = false;
 	let errorMessage = '';
+	let time: any;
 	let trigger: boolean = false;
 
 	$: if (currentPage + 1 > lastPage) {
@@ -187,28 +190,22 @@
 
 	function resetSearchFilters() {
 		search.name = '';
+		searchName = '';
 		search.done = 'Wszystkie';
 		search.from = '';
+		searchFrom = '';
 		search.to = '';
+		searchTo = '';
 	}
 
 	function isTerminate(date: Date) {
 		return new Date(date).getTime() < Date.now();
 	}
 
-	function handleEnter(event: any, fun: Function) {
-		if (event.keyCode == 13) {
-			fun();
-		}
+	function executeAfterTime(fun: Function, duration: number) {
+		clearTimeout(time);
+		time = setTimeout(fun, duration);
 	}
-
-	function updateSearchName() {
-		const time = window.performance.now();
-		search.name = searchName;
-		update();
-	}
-
-	function updateTimer() {}
 
 	function update() {
 		trigger = !trigger;
@@ -245,7 +242,11 @@
 			placeholder="Wprowadź nazwę"
 			class="shaped-outlined"
 			style="min-width: 300px; margin-right: 8px;"
-			on:input={updateSearchName}
+			on:input={() =>
+				executeAfterTime(() => {
+					search.name = searchName;
+					update();
+				}, 500)}
 		/>
 	</div>
 	<div style="display: inline-block; align-self: flex-end;">
@@ -261,19 +262,29 @@
 	<div>
 		<TextField
 			type="datetime-local"
-			bind:value={search.from}
+			bind:value={searchFrom}
 			label="Od"
 			class="shaped-outlined"
 			style="margin-right: 8px;"
+			on:input={() =>
+				executeAfterTime(() => {
+					search.from = searchFrom;
+					update();
+				}, 500)}
 		/>
 	</div>
 	<div>
 		<TextField
 			type="datetime-local"
-			bind:value={search.to}
+			bind:value={searchTo}
 			label="Do"
 			class="shaped-outlined"
 			style="margin-right: 8px;"
+			on:input={() =>
+				executeAfterTime(() => {
+					search.to = searchTo;
+					update();
+				}, 500)}
 		/>
 	</div>
 	<Button on:click={resetSearchFilters} style="display: inline-block; align-self: flex-end;">Wyczyść filtry</Button>
